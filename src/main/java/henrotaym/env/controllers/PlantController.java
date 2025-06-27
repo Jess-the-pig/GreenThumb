@@ -2,7 +2,6 @@ package henrotaym.env.controllers;
 
 import henrotaym.env.dto.request.PlantRequest;
 import henrotaym.env.dto.response.PlantResponse;
-import henrotaym.env.entities.Plant;
 import henrotaym.env.services.PlantService;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -43,7 +42,7 @@ public class PlantController {
     }
 
     @GetMapping("")
-    public List<Plant> getPlants() {
+    public List<PlantResponse> getPlants() {
         return plantService.findAll();
     }
 

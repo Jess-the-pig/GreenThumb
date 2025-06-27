@@ -10,6 +10,7 @@ import henrotaym.env.repositories.PlantRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,8 +37,16 @@ public class PlantService {
     }
 
     // Obtenir toutes les plantes
-    public List<Plant> findAll() {
-        return plantRepository.findAll();
+    public List<PlantResponse> findAll() {
+        List<Plant> listOfPlants = plantRepository.findAll();
+        List<PlantResponse> responseList = new ArrayList<>();
+
+        for (Plant plant : listOfPlants) {
+            PlantResponse response = plantMapper.fromEntity(plant);
+            responseList.add(response);
+        }
+
+        return responseList;
     }
 
     // Obtenir une plante par ID
