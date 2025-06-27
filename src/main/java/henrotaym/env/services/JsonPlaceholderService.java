@@ -2,8 +2,10 @@ package henrotaym.env.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import henrotaym.env.DriverListResponse;
-import henrotaym.env.entities.Driver;
+import henrotaym.env.entities.Character;
+import henrotaym.env.entities.Episode;
+import henrotaym.env.response.CharacterListResponse;
+import henrotaym.env.response.EpisodeListResponse;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,7 +21,7 @@ import java.util.List;
 @Service
 @Slf4j
 public class JsonPlaceholderService {
-    private final String F1_API_URL = "https://f1api.dev/api/drivers";
+    private final String RICK_API_URL = "https://rickandmortyapi.com/api";
     private final RestTemplate restTemplate;
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -27,18 +29,37 @@ public class JsonPlaceholderService {
         this.restTemplate = restTemplate;
     }
 
-    public List<Driver> getDrivers() {
-        String url = F1_API_URL;
+    public List<Character> getCharacters(int page) {
+        String url = RICK_API_URL;
         ResponseEntity<String> response =
-                restTemplate.exchange(url, HttpMethod.GET, null, String.class);
+                restTemplate.exchange(
+                        url + "/character?page=" + page, HttpMethod.GET, null, String.class);
         String body = response.getBody();
         log.info("Réponse brute reçue : {}", body);
 
         try {
             ObjectMapper mapper = new ObjectMapper();
             // Crée une classe qui encapsule la liste de drivers
-            DriverListResponse wrapper = mapper.readValue(body, DriverListResponse.class);
-            return wrapper.getDrivers();
+            CharacterListResponse wrapper = mapper.readValue(body, CharacterListResponse.class);
+            return wrapper.getCharacters();
+        } catch (Exception e) {
+            log.error("Erreur lors du parsing de la réponse : {}", e.getMessage());
+            throw new RuntimeException("Erreur lors du parsing de la réponse", e);
+        }
+    }
+
+    public List<Episode> getEpisodes() {
+        String url = RICK_API_URL;
+        ResponseEntity<String> response =
+                restTemplate.exchange(url + "/episode", HttpMethod.GET, null, String.class);
+        String body = response.getBody();
+        log.info("Réponse brute reçue : {}", body);
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            // Crée une classe qui encapsule la liste de drivers
+            EpisodeListResponse wrapper = mapper.readValue(body, EpisodeListResponse.class);
+            return wrapper.getEpisodes();
         } catch (Exception e) {
             log.error("Erreur lors du parsing de la réponse : {}", e.getMessage());
             throw new RuntimeException("Erreur lors du parsing de la réponse", e);
