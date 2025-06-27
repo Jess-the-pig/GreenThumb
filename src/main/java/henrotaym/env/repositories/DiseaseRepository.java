@@ -1,11 +1,14 @@
 package henrotaym.env.repositories;
 
-import henrotaym.env.entities.Disease;
+import java.math.BigInteger;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.math.BigInteger;
+import henrotaym.env.entities.Disease;
 
 @Repository
-public interface DiseaseRepository extends JpaRepository<Disease, BigInteger> {}
+public interface DiseaseRepository extends JpaRepository<Disease, BigInteger> {
+    List<Disease> findByPlantId(BigInteger plantId);
+}

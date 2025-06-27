@@ -4,6 +4,9 @@ import henrotaym.env.dto.request.ActionRequest;
 import henrotaym.env.dto.response.ActionResponse;
 import henrotaym.env.services.ActionService;
 
+import jakarta.validation.Valid;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,8 +37,8 @@ public class ActionController {
     */
 
     @PostMapping("")
-    public void saveNewAction(@RequestBody ActionRequest entity) {
-        actionService.save(entity);
+    public ResponseEntity<ActionResponse> saveNewAction(@Valid @RequestBody ActionRequest entity) {
+        return ResponseEntity.ok(actionService.save(entity));
     }
 
     @GetMapping("/{id}")
@@ -45,7 +48,7 @@ public class ActionController {
 
     @PutMapping("/{id}")
     public Optional<ActionResponse> updateAction(
-            @PathVariable BigInteger id, @RequestBody ActionRequest entity) {
+            @PathVariable BigInteger id, @Valid @RequestBody ActionRequest entity) {
         // TODO: process PUT request
         return actionService.update(id, entity);
     }

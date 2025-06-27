@@ -2,9 +2,13 @@ package henrotaym.env.services;
 
 import henrotaym.env.dto.request.PlantRequest;
 import henrotaym.env.dto.response.PlantResponse;
+import henrotaym.env.entities.Disease;
 import henrotaym.env.entities.Plant;
+import henrotaym.env.enums.StatusName;
+import henrotaym.env.exceptions.PlantIsDeadException;
 import henrotaym.env.mappers.OptionalMapper;
 import henrotaym.env.mappers.PlantMapper;
+import henrotaym.env.repositories.DiseaseRepository;
 import henrotaym.env.repositories.PlantRepository;
 
 import org.springframework.stereotype.Service;
@@ -20,20 +24,35 @@ public class PlantService {
     private final PlantRepository plantRepository;
     private final PlantMapper plantMapper;
     private final OptionalMapper optionalMapper;
+    private final DiseaseRepository diseaseRepository;
 
     public PlantService(
             PlantRepository plantRepository,
             PlantMapper plantMapper,
-            OptionalMapper optionalMapper) {
+            OptionalMapper optionalMapper,
+            DiseaseRepository diseaseRepository) {
         this.plantRepository = plantRepository;
         this.plantMapper = plantMapper;
         this.optionalMapper = optionalMapper;
+        this.diseaseRepository = diseaseRepository;
     }
 
     // Créer une plante
-    public Plant add(PlantRequest plant) {
-        Plant plantToSave = plantMapper.toEntity(plant);
-        return plantRepository.save(plantToSave);
+    public PlantResponse add(PlantRequest plantRequest) {
+        Plant plantToSave = plantMapper.toEntity(plantRequest);
+
+        if (plantRequest.getDiseaseIds() != null && !plantRequest.getDiseaseIds().isEmpty()) {
+            List<Disease> diseases = diseaseRepository.findAllById(plantRequest.getDiseaseIds());
+            plantToSave.setDiseases(diseases);
+            plantToSave.setStatus(StatusName.SICK);
+        } else {
+            plantToSave.setDiseases(new ArrayList<>());
+            plantToSave.setStatus(plantRequest.getStatus());
+            updatePlantStatus(plantToSave);
+        }
+
+        Plant savedPlant = plantRepository.save(plantToSave);
+        return plantMapper.fromEntity(savedPlant);
     }
 
     // Obtenir toutes les plantes
@@ -56,17 +75,31 @@ public class PlantService {
     }
 
     // Mettre à jour une plante
-    public Optional<PlantResponse> update(BigInteger id, PlantRequest updatedPlant) {
-        Plant plant = plantMapper.toEntity(updatedPlant);
-
+    public Optional<PlantResponse> update(BigInteger id, PlantRequest updatedRequest) {
         return plantRepository
                 .findById(id)
                 .map(
                         existingPlant -> {
-                            existingPlant.setName(plant.getName());
-                            existingPlant.setSpecies(plant.getSpecies());
-                            existingPlant.setBuyingDate(plant.getBuyingDate());
-                            existingPlant.setStatus(plant.getStatus());
+                            if (existingPlant.getStatus() == StatusName.DEAD) {
+                                throw new PlantIsDeadException();
+                            }
+
+                            existingPlant.setName(updatedRequest.getName());
+                            existingPlant.setSpecies(updatedRequest.getSpecies());
+                            existingPlant.setBuyingDate(updatedRequest.getBuyingDate());
+
+                            if (updatedRequest.getDiseaseIds() != null
+                                    && !updatedRequest.getDiseaseIds().isEmpty()) {
+                                List<Disease> diseases =
+                                        diseaseRepository.findAllById(
+                                                updatedRequest.getDiseaseIds());
+                                existingPlant.setDiseases(diseases);
+                            } else {
+                                existingPlant.setDiseases(new ArrayList<>());
+                            }
+
+                            updatePlantStatus(existingPlant);
+
                             Plant saved = plantRepository.save(existingPlant);
                             return plantMapper.fromEntity(saved);
                         });
@@ -79,5 +112,16 @@ public class PlantService {
             return true;
         }
         return false;
+    }
+
+    // Appliquer la logique de statut automatique
+    private void updatePlantStatus(Plant plant) {
+        if (plant.getStatus() == StatusName.DEAD) return;
+
+        if (plant.getDiseases() == null || plant.getDiseases().isEmpty()) {
+            plant.setStatus(StatusName.ALIVE);
+        } else {
+            plant.setStatus(StatusName.SICK);
+        }
     }
 }

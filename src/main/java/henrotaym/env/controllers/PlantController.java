@@ -4,6 +4,9 @@ import henrotaym.env.dto.request.PlantRequest;
 import henrotaym.env.dto.response.PlantResponse;
 import henrotaym.env.services.PlantService;
 
+import jakarta.validation.Valid;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,9 +39,9 @@ public class PlantController {
          */
 
     @PostMapping("")
-    public void addPlant(@RequestBody PlantRequest plant) {
+    public ResponseEntity<PlantResponse> addPlant(@RequestBody PlantRequest plant) {
         // TODO: process POST request
-        plantService.add(plant);
+        return ResponseEntity.ok(plantService.add(plant));
     }
 
     @GetMapping("")
@@ -53,7 +56,7 @@ public class PlantController {
 
     @PutMapping("/{id}")
     public Optional<PlantResponse> updatePlant(
-            @PathVariable BigInteger id, @RequestBody PlantRequest entity) {
+            @PathVariable BigInteger id, @Valid @RequestBody PlantRequest entity) {
         // TODO: process PUT request
         return plantService.update(id, entity);
     }

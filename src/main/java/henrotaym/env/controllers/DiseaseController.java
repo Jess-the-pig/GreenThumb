@@ -51,7 +51,7 @@ public class DiseaseController {
 
     @PutMapping("/{id}")
     public Optional<DiseaseResponse> putMethodName(
-            @PathVariable BigInteger id, @RequestBody DiseaseRequest entity) {
+            @PathVariable BigInteger id, @Valid @RequestBody DiseaseRequest entity) {
         // TODO: process PUT request
 
         return diseaseService.update(id, entity);

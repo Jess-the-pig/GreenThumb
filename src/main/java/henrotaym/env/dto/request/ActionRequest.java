@@ -1,20 +1,28 @@
 package henrotaym.env.dto.request;
 
+import henrotaym.env.annotations.ExistsInDatabase;
 import henrotaym.env.entities.Plant;
+import henrotaym.env.repositories.PlantRepository;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
+import java.math.BigInteger;
 import java.sql.Date;
 
 public class ActionRequest {
     @NotBlank(message = "Name is required")
     private String name;
 
-    @NotBlank(message = "Date is required")
+    @NotNull(message = "Date is required")
     private Date due_at;
 
-    @NotBlank(message = "Plant is required")
+    @NotNull(message = "Plant is required")
     private Plant plant;
+
+    @NotNull
+    @ExistsInDatabase(repository = PlantRepository.class)
+    private BigInteger plantId;
 
     public String getName() {
         return name;

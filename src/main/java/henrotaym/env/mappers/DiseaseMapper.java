@@ -4,6 +4,9 @@ import henrotaym.env.dto.request.DiseaseRequest;
 import henrotaym.env.dto.response.DiseaseResponse;
 import henrotaym.env.entities.Disease;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class DiseaseMapper {
 
     public Disease toEntity(DiseaseRequest diseaseRequest) {

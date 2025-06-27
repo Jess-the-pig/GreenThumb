@@ -6,10 +6,14 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 
 import java.math.BigInteger;
 import java.sql.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "plant")
@@ -23,6 +27,13 @@ public class Plant {
     private String name;
     private Date buyingDate;
     private StatusName status;
+
+    @ManyToMany
+    @JoinTable(
+            name = "plant_disease",
+            joinColumns = @JoinColumn(name = "plant_id"),
+            inverseJoinColumns = @JoinColumn(name = "disease_id"))
+    private List<Disease> diseases;
 
     // Getters
     public BigInteger getId() {
@@ -64,5 +75,13 @@ public class Plant {
 
     public void setStatus(StatusName status) {
         this.status = status;
+    }
+
+    public List<Disease> getDiseases() {
+        return diseases;
+    }
+
+    public void setDiseases(List<Disease> diseases) {
+        this.diseases = diseases;
     }
 }

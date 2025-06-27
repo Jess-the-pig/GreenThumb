@@ -1,15 +1,24 @@
 package henrotaym.env.dto.request;
 
+import henrotaym.env.annotations.ExistsInDatabase;
 import henrotaym.env.enums.DiseaseName;
+import henrotaym.env.repositories.PlantRepository;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+import java.math.BigInteger;
 
 public class DiseaseRequest {
     @NotBlank(message = "Name is required")
     private String name;
 
-    @NotBlank(message = "Type is required")
+    @NotNull(message = "type is required")
     private DiseaseName type;
+
+    @NotNull(message = "Plant ID is required")
+    @ExistsInDatabase(repository = PlantRepository.class, message = "Plant not found")
+    private BigInteger plantId;
 
     public String getName() {
         return name;
@@ -25,5 +34,13 @@ public class DiseaseRequest {
 
     public void setType(DiseaseName type) {
         this.type = type;
+    }
+
+    public BigInteger getPlantId() {
+        return plantId;
+    }
+
+    public void setPlantId(BigInteger plantId) {
+        this.plantId = plantId;
     }
 }
